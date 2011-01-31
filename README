@@ -1,0 +1,3 @@
+Modified KohanaPHP 3.0 profiler: - shows number of returned rows for mysql queries - shows $COOKIE, $GET, $POST, $SESSION - optionally shows $_SERVER, included files, loaded modules.
+
+Changed the way profiler shows memory usage (using Text::bytes method), by default profiler is hidden, clicking on the Show Profiler link opens it. 
