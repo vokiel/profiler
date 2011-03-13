@@ -31,6 +31,9 @@ class Profiler extends Kohana_Profiler {
 			'stop_time'    => FALSE,
 			'stop_memory'  => FALSE,
 			'other'  => FALSE,
+		
+			'file' => FALSE,
+			'line' => FALSE,
 		);
 
 		return $token;
@@ -53,10 +56,9 @@ class Profiler extends Kohana_Profiler {
 		$total = array(
 			'time' => 0,
 			'memory' => 0);
-
+	
 		foreach ($tokens as $token)
 		{
-			
 			$other = Profiler::$_marks[$token]['other'];
 			// Get the total time and memory for this benchmark
 			list($time, $memory) = Profiler::total($token);
@@ -105,8 +107,58 @@ class Profiler extends Kohana_Profiler {
 			'max' => $max,
 			'total' => $total,
 			'average' => $average,
-			'other'=>$other);
+			'other'=>$other
+		);
 	}
 
+	/**
+	 * Stops a benchmark.
+	 *
+	 *     Profiler::stop($token);
+	 *
+	 * @param   string  token
+	 * @return  void
+	 */
+	public static function stop($token,$arr=false)
+	{
+		// Stop the benchmark
+		Profiler::$_marks[$token]['stop_time']   = microtime(TRUE);
+		Profiler::$_marks[$token]['stop_memory'] = memory_get_usage();
+		if (Arr::is_array($arr)){
+			Profiler::$_marks[$token]['file'] = $arr['file'];
+			Profiler::$_marks[$token]['line'] = $arr['line'];
+		}
+	}
 
+	/**
+	 * Gets the total execution time and memory usage of a benchmark as a list.
+	 *
+	 *     list($time, $memory) = Profiler::total($token);
+	 *
+	 * @param   string  token
+	 * @return  array   execution time, memory
+	 */
+	public static function total($token)
+	{
+		// Import the benchmark data
+		$mark = Profiler::$_marks[$token];
+
+		if ($mark['stop_time'] === FALSE)
+		{
+			// The benchmark has not been stopped yet
+			$mark['stop_time']   = microtime(TRUE);
+			$mark['stop_memory'] = memory_get_usage();
+		}
+
+		return array
+		(
+			// Total time in seconds
+			$mark['stop_time'] - $mark['start_time'],
+			// Amount of memory in bytes
+			$mark['stop_memory'] - $mark['start_memory'],
+			
+			$mark['file'],
+			$mark['line']
+		);
+	}
 }

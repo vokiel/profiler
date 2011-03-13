@@ -42,7 +42,12 @@ class Kohana_Database_MySQL extends Database {
 
 		if (isset($benchmark))
 		{
-			Profiler::stop($benchmark);
+			$debug = debug_backtrace();
+			$arr = array (
+				'file' => $debug[count($debug)-6]['line'],
+				'line' => $debug[count($debug)-6]['file'],
+			);			
+			Profiler::stop($benchmark,$arr);
 			Profiler::add($benchmark, 'R: '.mysql_affected_rows($this->_connection));
 		}
 
